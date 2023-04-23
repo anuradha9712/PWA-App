@@ -12,18 +12,39 @@ const assets = [
 // Step 2: Install Service Worker
 self.addEventListener("install", (event) => {
   // console.log("service worker has been installed!!");
-  event.waitUntil(caches.open(staticCacheName).then((cache) => {
-    console.log('caching shell assets');
-    cache.addAll(assets);
-  }))
+  event.waitUntil(
+    caches.open(staticCacheName).then((cache) => {
+      console.log("caching shell assets");
+      cache.addAll(assets);
+    })
+  );
 });
+
+const clearOldCaches = () =>
+  caches.keys().then((keys) =>
+    Promise.all(
+      keys
+        .filter((key) => key !== staticCacheName)
+        .map((key) => {
+          console.log("[sw] remove cache", key);
+          caches.delete(key);
+          return true;
+        })
+    )
+  );
 
 // Step 3: Activate Service Worker
 self.addEventListener("activate", (event) => {
   console.log("service worker has been activated!!");
+  event.waitUntil(clearOldCaches());
 });
 
 // Step 4: Fetch Event
 self.addEventListener("fetch", (event) => {
   console.log("fetch event", event);
+  event.respondWith(
+    caches.match(event.request).then((cacheRes) => {
+      return cacheRes || fetch(event.request);
+    })
+  );
 });
