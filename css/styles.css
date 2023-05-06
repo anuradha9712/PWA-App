@@ -2,3 +2,10 @@ body {
   background-color: var(--accent1-light);
 }
 
+.links {
+  background: white;
+  border-radius: 4px;
+  padding: 8px;
+  color: black;
+  margin: 8px;
+}
